@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminProjectController;
-use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\ProjectsController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================
@@ -34,12 +35,9 @@ Route::post('/contact', function () {
 // RUTE ADMIN (DENGAN PREFIX & MIDDLEWARE)
 // ==========================================
 
-// Rute penyelamat agar middleware 'auth' tidak crash saat melempar user belum login
 Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
 
 Route::prefix('admin')->group(function () {
-    
-    // Rute Guest: Hanya bisa diakses jika BELUM login
     Route::middleware('guest')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login'); 
         Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
@@ -54,16 +52,9 @@ Route::prefix('admin')->group(function () {
             return view('admin.home');
         })->name('admin.dashboard');
 
-        // ==========================================
-        // FITUR TAMBAHAN: CETAK DOMPDF
-        // ==========================================
-        // Rute untuk mengunduh rekap SEMUA project ke PDF
         Route::get('projects/download-pdf', [AdminProjectController::class, 'downloadAllPDF'])->name('projects.pdf_all');
-        
-        // Rute untuk mengunduh SATU project spesifik ke PDF
         Route::get('projects/{id}/pdf', [AdminProjectController::class, 'downloadPDF'])->name('projects.pdf_single');
-
-        // CRUD Projects Admin (Bawaan Laravel Resource)
         Route::resource('projects', AdminProjectController::class);
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users');
     });
 });

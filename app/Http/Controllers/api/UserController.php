@@ -14,6 +14,11 @@ class UserController extends Controller
      */
     public function index()
     {
+        return view('admin.users');
+    }
+
+    public function getData()
+    {
         //
         $users = User::all();
         return response()->json([
@@ -71,25 +76,18 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         try {
             $user = User::findOrFail($id);
 
-            $validate = $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
-                'password' => 'sometimes|required|string|min:8',
-                'phone' => 'nullable|string',
-                'address' => 'nullable|string',
-                'role' => 'nullable|string',
-            ]);
-
-            if (isset($validate['password'])) {
-                $validate['password'] = bcrypt($validate['password']);
+            $data = $request->all();
+            
+            if ($request->has('password')) {
+                $data['password'] = bcrypt($data['password']);
             }
 
-            $user->update($validate);
+            $user->update($data);
 
             return response()->json([
                 'success' => true,

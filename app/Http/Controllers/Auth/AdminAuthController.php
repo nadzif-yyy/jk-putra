@@ -18,21 +18,37 @@ class AdminAuthController extends Controller
 
     public function login(Request $request)
     {
-        // 1. Validasi input form
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // 2. Coba autentikasi (Laravel otomatis mengecek hash password di sini)
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            $user->tokens()->delete(); // Hapus token lama
+            $token = $user->createToken('auth_token')->plainTextToken; // Buat token baru
+            session(['api_token' => $token]); // Simpan token di session
 
-            // Diarahkan ke dashboard admin jika sukses
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Login berhasil.',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'role' => $user->role,
+                    ],
+                ]);
+            }
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        // 3. Jika gagal, kembali dengan error 'login_error' yang dibaca oleh Blade kamu
         return back()->withErrors([
             'login_error' => 'Email atau password salah.',
         ])->onlyInput('email');

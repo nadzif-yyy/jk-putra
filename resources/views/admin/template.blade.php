@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.8/css/dataTables.dataTables.css">
     <script>
         const API_TOKEN = "{{ session('api_token') }}";
+        console.log(API_TOKEN);
     </script>
     <style>
         body {
@@ -123,6 +124,7 @@
         </div>
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
         <a href="{{ route('projects.index') }}" class="{{ request()->routeIs('projects.*') ? 'active' : '' }}">Data Project</a>
+        <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">Data Users</a>
     </div>
 
     <!-- Content Wrapper -->
@@ -133,7 +135,7 @@
         
         <!-- Footer -->
         <footer class="main-footer">
-            &copy; 2026 QeiProfile. All rights reserved.
+            &copy; 2026 jipjoki. All rights reserved.
         </footer>
     </div>
 
